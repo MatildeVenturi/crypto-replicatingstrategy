@@ -7,6 +7,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from passive_portfolios import compute_passive_equal_weight, to_daily_returns
 
 from signals_momentum import add_signals
 from portfolios import (
@@ -161,6 +162,9 @@ def run_one_parameterization(df_panel: pd.DataFrame, t1: int, t2: int, out_dir: 
     ts_rb = compute_ts_portfolio_returns_based(base_panel)
     cs_rb = compute_cs_portfolio_returns_based(base_panel)
 
+    passive_eq = compute_passive_equal_weight(base_panel)
+    passive_eq_d = to_daily_returns(passive_eq, "R_PASSIVE_EQUAL")
+
     # daily returns
     ts_d = to_daily_returns(ts, "R_TS")
     cs_d = to_daily_returns(cs, "R_CS")
@@ -174,6 +178,8 @@ def run_one_parameterization(df_panel: pd.DataFrame, t1: int, t2: int, out_dir: 
     save_df(cs, out_dir / "hourly" / f"cs_signal_{tag}.csv")
     save_df(ts_rb, out_dir / "hourly" / f"ts_returns_based_{tag}.csv")
     save_df(cs_rb, out_dir / "hourly" / f"cs_returns_based_{tag}.csv")
+    save_df(passive_eq, out_dir / "hourly" / f"passive_equal_{tag}.csv")
+    save_df(passive_eq_d, out_dir / "daily" / f"passive_equal_daily_{tag}.csv")
 
     save_df(ts_d, out_dir / "daily" / f"ts_signal_daily_{tag}.csv")
     save_df(cs_d, out_dir / "daily" / f"cs_signal_daily_{tag}.csv")
@@ -191,6 +197,7 @@ def run_one_parameterization(df_panel: pd.DataFrame, t1: int, t2: int, out_dir: 
         build_summary_row("signal_CS", cs["R_CS"], t1, t2),
         build_summary_row("returns_TS", ts_rb["R_TS_RB"], t1, t2),
         build_summary_row("returns_CS", cs_rb["R_CS_RB"], t1, t2),
+        build_summary_row("passive_equal", passive_eq["R_PASSIVE_EQUAL"], t1, t2),
     ]
     return pd.DataFrame(rows)
 
