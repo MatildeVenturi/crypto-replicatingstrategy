@@ -114,6 +114,7 @@ def make_comparison_plot(
     cs: pd.DataFrame,
     ts_rb: pd.DataFrame,
     cs_rb: pd.DataFrame,
+    passive_eq: pd.DataFrame,
     out_path: Path,
     title: str,
 ) -> None:
@@ -122,6 +123,7 @@ def make_comparison_plot(
     plt.plot(cs.index, cs["Equity_CS"], label="Signal-based CS")
     plt.plot(ts_rb.index, ts_rb["Equity_TS_RB"], label="Returns-based TS")
     plt.plot(cs_rb.index, cs_rb["Equity_CS_RB"], label="Returns-based CS")
+    plt.plot(passive_eq.index, passive_eq["Equity_PASSIVE_EQUAL"], label="Passive equal-weight")
 
     plt.title(title)
     plt.xlabel("Datetime")
@@ -133,7 +135,6 @@ def make_comparison_plot(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_path, dpi=300)
     plt.close()
-
 
 def build_summary_row(name: str, ret_series: pd.Series, t1: int, t2: int) -> dict:
     stats = summary_stats(ret_series)
@@ -187,10 +188,14 @@ def run_one_parameterization(df_panel: pd.DataFrame, t1: int, t2: int, out_dir: 
     save_df(cs_rb_d, out_dir / "daily" / f"cs_returns_based_daily_{tag}.csv")
 
     make_comparison_plot(
-        ts, cs, ts_rb, cs_rb,
-        out_path=out_dir / "plots" / f"comparison_{tag}.png",
-        title=f"Momentum strategies comparison ({tag})",
-    )
+    ts,
+    cs,
+    ts_rb,
+    cs_rb,
+    passive_eq,
+    out_path=out_dir / "plots" / f"comparison_{tag}.png",
+    title=f"Momentum strategies comparison ({tag})",
+)
 
     rows = [
         build_summary_row("signal_TS", ts["R_TS"], t1, t2),
