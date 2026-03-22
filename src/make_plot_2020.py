@@ -14,24 +14,24 @@ def main() -> None:
 
     df = pd.read_csv(data_path, parse_dates=["datetime"])
 
-    # Se vuoi l'asse x = "Hours" (0..4140) come nel paper:
+    
     df = df.sort_values(["fsym", "datetime"])
     df["hour_index"] = df.groupby("fsym").cumcount()
 
-    # Pivot: righe=ore, colonne=crypto, valori=price
+    
     wide = df.pivot(index="hour_index", columns="fsym", values="price_usd").sort_index()
 
-    # Indexed price: divide ogni colonna per il primo valore
+  
     indexed = wide / wide.iloc[0]
 
-    # Plot
+    
     plt.figure()
     indexed.plot(ax=plt.gca(), legend=True)
 
     plt.xlabel("Hours")
     plt.ylabel("Indexed Price")
 
-    # Legenda come nel paper (solo nomi)
+   
     plt.legend(title=None)
 
     out_png = out_dir / "figure1_indexed_prices_2020.png"

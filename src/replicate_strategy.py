@@ -81,11 +81,9 @@ def load_panel_csv(
     out = out[["datetime", "fsym", "price_usd"]].sort_values(["datetime", "fsym"]).reset_index(drop=True)
     return out
 
-
+#keep only valid entries in dataset
 def restrict_common_panel(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Keep only datetimes where all symbols are present.
-    """
+  
     counts = df.groupby("datetime")["fsym"].nunique()
     n_assets = df["fsym"].nunique()
     valid_dt = counts[counts == n_assets].index
@@ -147,10 +145,10 @@ def build_summary_row(name: str, ret_series: pd.Series, t1: int, t2: int) -> dic
 def run_one_parameterization(df_panel: pd.DataFrame, t1: int, t2: int, out_dir: Path) -> pd.DataFrame:
     print(f"[INFO] Running t1={t1}, t2={t2}")
 
-    # signal-based panel
+   
     sig_panel = add_signals(df_panel, price_col="price_usd", t1=t1, t2=t2)
 
-    # keep only rows with valid signal and common timestamps across all symbols
+   
     sig_panel = sig_panel.dropna(subset=["Signal", "P"]).copy()
     sig_panel = restrict_common_panel(sig_panel)
 
@@ -158,7 +156,7 @@ def run_one_parameterization(df_panel: pd.DataFrame, t1: int, t2: int, out_dir: 
     ts = compute_ts_portfolio(sig_panel)
     cs = compute_cs_portfolio(sig_panel)
 
-    # returns-based portfolios use same aligned panel, but only P is needed
+    
     base_panel = sig_panel[["datetime", "fsym", "price_usd", "P"]].copy()
     ts_rb = compute_ts_portfolio_returns_based(base_panel)
     cs_rb = compute_cs_portfolio_returns_based(base_panel)

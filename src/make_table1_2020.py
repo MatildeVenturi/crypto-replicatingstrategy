@@ -13,7 +13,7 @@ import pandas as pd
 
 @dataclass(frozen=True)
 class Config:
-    # IMPORTANT: usa la cartella corrente da cui lanci il comando (root repo)
+    
     repo_root: Path = Path.cwd()
     data_processed_dir: Path = repo_root / "data" / "processed"
     tables_dir: Path = repo_root / "tables"
@@ -23,7 +23,7 @@ class Config:
     tsym: str = "USD"
     max_points_per_call: int = 2000
 
-    # T = 4141 points inclusive => 4140 ore di differenza
+    
     start_utc: datetime = datetime(2020, 2, 25, 0, 0, tzinfo=timezone.utc)
     end_utc: datetime = start_utc + timedelta(hours=4140)
 
@@ -54,7 +54,7 @@ def fetch_histohour(fsym: str, cfg: Config, sleep_s: float = 0.2) -> pd.DataFram
             "fsym": fsym,
             "tsym": cfg.tsym,
             
-            "limit": cfg.max_points_per_call - 1,  # limit=N => N+1 punti
+            "limit": cfg.max_points_per_call - 1,  
             "toTs": to_ts,
         }
         r = requests.get(endpoint, params=params, headers=headers, timeout=30)
@@ -102,7 +102,7 @@ def build_table1_summary(prices: pd.DataFrame) -> pd.DataFrame:
         "median": g.median(),
         "max": g.max(),
         "skew": g.apply(lambda s: s.skew()),
-        "kurtosis": g.apply(lambda s: s.kurt()),  # excess kurtosis
+        "kurtosis": g.apply(lambda s: s.kurt()),  
     }).sort_index()
     return table
 

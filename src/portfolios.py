@@ -10,11 +10,9 @@ def add_log_returns(df: pd.DataFrame, price_col: str = "P") -> pd.DataFrame:
     return df
 
 
+#signal based time series strategy (invest in all crypt signal(t-1)/N)
 def compute_ts_portfolio(df_with_signal: pd.DataFrame) -> pd.DataFrame:
-    """
-    Signal-based time-series strategy:
-    invest in all N cryptos with weight = Signal_{t-1} / N
-    """
+   
     df = df_with_signal.sort_values(["datetime", "fsym"]).copy()
     df = add_log_returns(df, price_col="P")
 
@@ -27,7 +25,7 @@ def compute_ts_portfolio(df_with_signal: pd.DataFrame) -> pd.DataFrame:
     ts["Equity_TS"] = np.exp(ts["Cum_R_TS"])
     return ts
 
-
+# paper: +1/6 on each of top 3, -1/6 on each of bottom 3
 def _cs_weights_from_score(g: pd.DataFrame, score_col: str) -> pd.DataFrame:
     g = g.copy()
     g["w_cs"] = 0.0
@@ -39,17 +37,13 @@ def _cs_weights_from_score(g: pd.DataFrame, score_col: str) -> pd.DataFrame:
     top_idx = valid.nlargest(3).index
     bot_idx = valid.nsmallest(3).index
 
-    # paper: +1/6 on each of top 3, -1/6 on each of bottom 3
     g.loc[top_idx, "w_cs"] = 1.0 / 6.0
     g.loc[bot_idx, "w_cs"] = -1.0 / 6.0
     return g
 
-
+#signal based cross sectional
 def compute_cs_portfolio(df_with_signal: pd.DataFrame) -> pd.DataFrame:
-    """
-    Signal-based cross-sectional strategy:
-    rank by Signal_t, but apply weights at t-1 to returns at t.
-    """
+
     df = df_with_signal.sort_values(["datetime", "fsym"]).copy()
     df = add_log_returns(df, price_col="P")
 
@@ -67,24 +61,15 @@ def compute_cs_portfolio(df_with_signal: pd.DataFrame) -> pd.DataFrame:
     cs["Equity_CS"] = np.exp(cs["Cum_R_CS"])
     return cs
 
-
+#previous period return used for return based strategies
 def add_returns_based_signal(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Previous-period return used for returns-based strategies.
-    """
     df = df.sort_values(["fsym", "datetime"]).copy()
     df = add_log_returns(df, price_col="P")
     df["ret_prev"] = df.groupby("fsym")["r"].shift(1)
     return df
 
-
+#time series return based:if previous return >0 invest +1/N
 def compute_ts_portfolio_returns_based(df_panel: pd.DataFrame) -> pd.DataFrame:
-    """
-    Returns-based time-series strategy:
-    if previous return > 0 => +1/N
-    if previous return < 0 => -1/N
-    else 0
-    """
     df = add_returns_based_signal(df_panel)
     n_assets = df["fsym"].nunique()
 
@@ -97,12 +82,10 @@ def compute_ts_portfolio_returns_based(df_panel: pd.DataFrame) -> pd.DataFrame:
     ts["Equity_TS_RB"] = np.exp(ts["Cum_R_TS_RB"])
     return ts
 
-
+# Returns-based cross-sectional strategy: rank by previous return, long top 3 (+1/6), short bottom 3 (-1/6)
+   
 def compute_cs_portfolio_returns_based(df_panel: pd.DataFrame) -> pd.DataFrame:
-    """
-    Returns-based cross-sectional strategy:
-    rank by previous return, long top 3 (+1/6), short bottom 3 (-1/6)
-    """
+   
     df = add_returns_based_signal(df_panel)
 
     df = (

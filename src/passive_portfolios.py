@@ -5,15 +5,7 @@ import pandas as pd
 
 
 def add_log_returns(df: pd.DataFrame, price_col: str = "P") -> pd.DataFrame:
-    """
-    Add log returns by asset:
-        r_t = log(P_t / P_{t-1})
-
-    Required columns:
-        - datetime
-        - fsym
-        - price_col
-    """
+   
     out = df.sort_values(["fsym", "datetime"]).copy()
     out["r"] = np.log(out[price_col] / out.groupby("fsym")[price_col].shift(1))
     return out
@@ -23,24 +15,7 @@ def compute_passive_equal_weight(
     df_panel: pd.DataFrame,
     price_col: str = "P",
 ) -> pd.DataFrame:
-    """
-    Equal-weight passive benchmark.
-
-    Logic:
-    - all assets receive the same constant weight: 1/N
-    - no re-ranking, no signals, no market cap
-    - portfolio return at time t is the sum of weighted asset log returns
-
-    Required columns in df_panel:
-        - datetime
-        - fsym
-        - price_col (default: P)
-
-    Returns a dataframe indexed by datetime with:
-        - R_PASSIVE_EQUAL
-        - Cum_R_PASSIVE_EQUAL
-        - Equity_PASSIVE_EQUAL
-    """
+  
     required = {"datetime", "fsym", price_col}
     missing = required - set(df_panel.columns)
     if missing:
