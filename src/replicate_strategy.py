@@ -19,6 +19,7 @@ from portfolios import (
     summary_stats,
 )
 
+#normalization param
 PARAM_GRID = [
     (12, 168),
     (24, 168),
@@ -26,7 +27,8 @@ PARAM_GRID = [
     (24, 720),
 ]
 
-
+#fromsymbol/from symbol volum,symbol=nome coppia di trading 
+#clean data e order them in a pandas df 
 def load_panel_csv(
     csv_path: str,
     datetime_col: str = "datetime",
@@ -142,6 +144,7 @@ def build_summary_row(name: str, ret_series: pd.Series, t1: int, t2: int) -> dic
     return stats
 
 
+#main function : create signals,creates portfolios,plots,statistics and save results 
 def run_one_parameterization(df_panel: pd.DataFrame, t1: int, t2: int, out_dir: Path) -> pd.DataFrame:
     print(f"[INFO] Running t1={t1}, t2={t2}")
 
@@ -207,6 +210,8 @@ def run_one_parameterization(df_panel: pd.DataFrame, t1: int, t2: int, out_dir: 
 
 def main():
     parser = argparse.ArgumentParser()
+
+    #specificare da dove prendere,mettere i dati 
     parser.add_argument(
         "--csv",
         default="data/processed/cryptocompare_hourly_usd_2020_T4141.csv",
@@ -224,7 +229,8 @@ def main():
         help="Output directory",
     )
     args = parser.parse_args()
-
+    
+    #carica i dati 
     out_dir = Path(args.out_dir)
     df_panel = load_panel_csv(args.csv, selected_symbols=args.symbols)
     df_panel = restrict_common_panel(df_panel)

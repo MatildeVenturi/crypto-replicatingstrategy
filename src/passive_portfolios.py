@@ -10,7 +10,7 @@ def add_log_returns(df: pd.DataFrame, price_col: str = "P") -> pd.DataFrame:
     out["r"] = np.log(out[price_col] / out.groupby("fsym")[price_col].shift(1))
     return out
 
-
+#costruisce il portafoglio equipesato e i rendimenti di ogni crypto per vaere poi quelli del portafoglio 
 def compute_passive_equal_weight(
     df_panel: pd.DataFrame,
     price_col: str = "P",
@@ -42,7 +42,7 @@ def compute_passive_equal_weight(
 
     return out
 
-
+#da orari a giornalieri 
 def to_daily_returns(
     hourly_portfolio: pd.DataFrame,
     return_col: str = "R_PASSIVE_EQUAL",
